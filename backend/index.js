@@ -1,7 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import authRouter from "./routes/auth.routes.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -21,6 +22,9 @@ const PORT = 3000;
 // middleware for parsing json and urlencoded data from the request body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// middleware for parsing cookies
+app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 

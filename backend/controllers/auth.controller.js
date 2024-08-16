@@ -46,7 +46,7 @@ export const signup = async (req, res) => {
 
         res.status(201).json(userWithoutPassword);
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
         res.status(500).json({
             message: "Internal server error occurred during signup",
         });
@@ -85,7 +85,7 @@ export const login = async (req, res) => {
         const { password: userPassword, ...userWithoutPassword } = user._doc;
         res.status(200).json(userWithoutPassword);
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
         res.status(500).json({
             message: "Internal server error occurred during login",
         });
@@ -97,9 +97,18 @@ export const logout = async (req, res) => {
         res.clearCookie("jwt");
         res.status(200).json({ message: "User logged out successfully" });
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
         res.status(500).json({
             message: "Internal server error occurred during logout",
         });
+    }
+};
+
+export const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select("-password");
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error.message);
     }
 };

@@ -12,7 +12,7 @@ mongoose
         console.log("Connected to database successfully");
     })
     .catch((err) => {
-        console.log(err.message);
+        console.error(err.message);
     });
 
 const app = express();

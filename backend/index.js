@@ -1,8 +1,9 @@
 import express from "express";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
-import authRouter from "./routes/auth.routes.js";
+import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import authRouter from "./routes/auth.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`);

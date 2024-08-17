@@ -3,8 +3,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
+
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
+import postRouter from "./routes/post.routes.js";
 
 dotenv.config();
 
@@ -34,8 +36,10 @@ app.use(express.urlencoded({ extended: true }));
 // middleware for parsing cookies
 app.use(cookieParser());
 
+// Middleware for serving static files through the express router
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/post", postRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`);

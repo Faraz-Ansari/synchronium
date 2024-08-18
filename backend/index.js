@@ -9,8 +9,6 @@ import userRouter from "./routes/user.routes.js";
 import postRouter from "./routes/post.routes.js";
 import notificationRouter from "./routes/notification.routes.js";
 
-// TODO: rename user and auth api routes for clarity
-
 dotenv.config();
 
 cloudinary.config({

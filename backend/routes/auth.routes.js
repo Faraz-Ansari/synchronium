@@ -3,13 +3,13 @@ import {
     signup,
     login,
     logout,
-    getMe,
+    userInfo,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
 
 const router = Router();
 
-router.get("/me", protectRoute, getMe);
+router.get("/user-info", protectRoute, userInfo);
 router.post("/signup", signup);
 router.post("/login", login);
 router.get("/logout", logout);

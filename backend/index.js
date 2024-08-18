@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import postRouter from "./routes/post.routes.js";
+import notificationRouter from "./routes/notification.routes.js";
 
 // TODO: rename user and auth api routes for clarity
 
@@ -42,6 +43,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
+app.use("/api/notification", notificationRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`);

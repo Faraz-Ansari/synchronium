@@ -63,7 +63,7 @@ export const getSuggestedUsers = async (req, res) => {
     }
 };
 
-export const followUnfollowUser = async (req, res) => {
+export const toggleFollow = async (req, res) => {
     try {
         const { id } = req.params;
         const userToFollow = await User.findById(id);
@@ -120,7 +120,7 @@ export const followUnfollowUser = async (req, res) => {
     }
 };
 
-export const updateUser = async (req, res) => {
+export const updateUserProfile = async (req, res) => {
     try {
         const {
             username,
@@ -201,7 +201,7 @@ export const updateUser = async (req, res) => {
             }
         );
 
-        updateUser.password = null;
+        updateUserProfile.password = null;
         res.status(200).json(updatedUser);
     } catch (error) {
         console.error(error.message);

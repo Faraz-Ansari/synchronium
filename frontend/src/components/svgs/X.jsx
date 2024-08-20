@@ -1,6 +1,24 @@
-const XSvg = (props) => (
-    <svg aria-hidden="true" viewBox="0 0 24 24" {...props}>
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+const SVGComponent = (props) => (
+    <svg
+        width="800px"
+        height="800px"
+        viewBox="0 0 24 24"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:cc="http://creativecommons.org/ns#"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        {...props}
+    >
+        <g transform="translate(0 -1028.4)">
+            <g>
+                <path d="m7 1028.4-5 12h8l-4 10 14-14h-9l6-8z" fill="#f1c40f" />
+                <path
+                    fill="#f39c12"
+                    d="m7 1028.4-5 12h3l5-12zm3 12-4 10 3-3 4-7z"
+                />
+                <path fill="#e67e22" d="m10 1040.4-0.4062 1h2.9062l0.5-1h-3z" />
+            </g>
+        </g>
     </svg>
 );
-export default XSvg;
+export default SVGComponent;

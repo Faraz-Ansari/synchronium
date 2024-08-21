@@ -6,6 +6,9 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -13,16 +16,49 @@ export default function Login() {
         password: "",
     });
 
+    const navigateTo = useNavigate();
+
+    const {
+        mutate: loginMutation,
+        isError,
+        error,
+        isPending,
+    } = useMutation({
+        mutationFn: async ({ username, password }) => {
+            try {
+                const response = await fetch("api/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                    }),
+                });
+
+                const data = await response.json();
+                console.log(data);
+                if (!response.ok) {
+                    throw new Error(data.message || "Something went wrong!");
+                }
+                toast.success("Login successful");
+                navigateTo("/");
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        },
+    });
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(formData);
+        loginMutation(formData);
     };
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-
-    const isError = false;
 
     return (
         <div className="max-w-screen-xl mx-auto flex h-screen">
@@ -58,19 +94,17 @@ export default function Login() {
                             value={formData.password}
                         />
                     </label>
-                    <button className="btn rounded-full btn-primary text-white">
-                        Login
+                    <button className="btn rounded-full btn-primary uppercase text-white">
+                        {isPending ? "Loading..." : "Login"}
                     </button>
-                    {isError && (
-                        <p className="text-red-500">Something went wrong</p>
-                    )}
+                    {isError && <p className="text-red-500">{error.message}</p>}
                 </form>
                 <div className="flex flex-col gap-2 mt-4">
                     <p className="text-white text-lg">
                         {"Don't"} have an account?
                     </p>
                     <Link to="/signup">
-                        <button className="btn rounded-full btn-primary text-white btn-outline w-full">
+                        <button className="btn rounded-full uppercase btn-primary text-white btn-outline w-full">
                             Sign up
                         </button>
                     </Link>

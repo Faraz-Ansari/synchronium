@@ -22,7 +22,12 @@ export default function SignUp() {
 
     const navigateTo = useNavigate();
 
-    const { mutate, isError, error, isPending } = useMutation({
+    const {
+        mutate: signupMutation,
+        isError,
+        error,
+        isPending,
+    } = useMutation({
         mutationFn: async ({ email, username, fullName, password }) => {
             try {
                 const response = await fetch("/api/auth/signup", {
@@ -52,12 +57,11 @@ export default function SignUp() {
                 throw error;
             }
         },
-        onSuccess: () => {},
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        mutate(formData);
+        signupMutation(formData);
     };
 
     const handleInputChange = (e) => {
@@ -128,7 +132,7 @@ export default function SignUp() {
                             value={formData.password}
                         />
                     </label>
-                    <button className="btn rounded-full btn-primary text-white">
+                    <button className="btn rounded-full btn-primary uppercase text-white">
                         {isPending ? "Loading..." : "Sign up"}
                     </button>
                     {isError && <p className="text-red-500">{error.message}</p>}
@@ -138,8 +142,8 @@ export default function SignUp() {
                         Already have an account?
                     </p>
                     <Link to="/login">
-                        <button className="btn rounded-full btn-primary text-white btn-outline w-full">
-                            Sign in
+                        <button className="btn rounded-full uppercase btn-primary text-white btn-outline w-full">
+                            Log in
                         </button>
                     </Link>
                 </div>

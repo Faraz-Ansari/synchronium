@@ -6,9 +6,8 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -16,7 +15,7 @@ export default function Login() {
         password: "",
     });
 
-    const navigateTo = useNavigate();
+    const queryClient = useQueryClient();
 
     const {
         mutate: loginMutation,
@@ -42,8 +41,12 @@ export default function Login() {
                 if (!response.ok) {
                     throw new Error(data.message || "Something went wrong!");
                 }
+
                 toast.success("Logged in successfully");
-                navigateTo("/");
+
+                // Invalidate the authUser query to refetch the user info
+                queryClient.invalidateQueries({ queryKey: ["authUser"] });
+
                 return data;
             } catch (error) {
                 throw error;

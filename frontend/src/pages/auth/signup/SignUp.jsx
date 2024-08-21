@@ -8,9 +8,8 @@ import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
@@ -20,7 +19,7 @@ export default function SignUp() {
         password: "",
     });
 
-    const navigateTo = useNavigate();
+    const queryClient = useQueryClient();
 
     const {
         mutate: signupMutation,
@@ -49,8 +48,11 @@ export default function SignUp() {
                 if (!response.ok) {
                     throw new Error(data.message || "Something went wrong!");
                 }
+
                 toast.success("Account created successfully");
-                navigateTo("/login");
+
+                // Invalidate the authUser query to refetch the user info
+                queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
                 return data;
             } catch (error) {

@@ -4,11 +4,13 @@ import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
     try {
-        const { username, email, fullname, password } = req.body;
+        const { username, email, fullName, password } = req.body;
 
         const existingUser = await User.findOne({ username });
         if (existingUser) {
-            return res.status(400).json({ message: "Username is already taken" });
+            return res
+                .status(400)
+                .json({ message: "Username is already taken" });
         }
 
         const existingEmail = await User.findOne({ email });
@@ -27,7 +29,7 @@ export const signup = async (req, res) => {
         const user = await User.create({
             username,
             email,
-            fullname,
+            fullName,
             password: passwordHash,
         });
 

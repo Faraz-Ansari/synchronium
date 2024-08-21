@@ -10,17 +10,20 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
         email: "",
         username: "",
-        fullname: "",
+        fullName: "",
         password: "",
     });
 
+    const navigateTo = useNavigate();
+
     const { mutate, isError, error, isPending } = useMutation({
-        mutationFn: async ({ email, username, fullname, password }) => {
+        mutationFn: async ({ email, username, fullName, password }) => {
             try {
                 const response = await fetch("/api/auth/signup", {
                     method: "POST",
@@ -30,7 +33,7 @@ export default function SignUp() {
                     body: JSON.stringify({
                         email,
                         username,
-                        fullname,
+                        fullName,
                         password,
                     }),
                 });
@@ -42,6 +45,7 @@ export default function SignUp() {
                     throw new Error(data.message || "Something went wrong!");
                 }
                 toast.success("Account created successfully");
+                navigateTo("/login");
 
                 return data;
             } catch (error) {
@@ -105,10 +109,10 @@ export default function SignUp() {
                                 type="text"
                                 className="grow"
                                 placeholder="Full Name"
-                                name="fullname"
+                                name="fullName"
                                 required
                                 onChange={handleInputChange}
-                                value={formData.fullname}
+                                value={formData.fullName}
                             />
                         </label>
                     </div>

@@ -129,7 +129,7 @@ export const updateUserProfile = async (req, res) => {
             newPassword,
             link,
             bio,
-            fullname,
+            fullName,
         } = req.body;
 
         let { profileImg, coverImg } = req.body;
@@ -187,7 +187,7 @@ export const updateUserProfile = async (req, res) => {
 
         currentUser.username = username || currentUser.username;
         currentUser.email = email || currentUser.email;
-        currentUser.fullname = fullname || currentUser.fullname;
+        currentUser.fullName = fullName || currentUser.fullName;
         currentUser.link = link || currentUser.link;
         currentUser.bio = bio || currentUser.bio;
         currentUser.profileImg = profileImg || currentUser.profileImg;

@@ -5,6 +5,9 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function SideBar() {
     const data = {
@@ -12,6 +15,26 @@ export default function SideBar() {
         username: "johndoe",
         profileImg: "/avatars/boy1.png",
     };
+
+    const navigateTo = useNavigate();
+
+    const { mutate: logoutMutation } = useMutation({
+        mutationFn: async () => {
+            try {
+                const response = await fetch("/api/auth/logout");
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                toast.success("Logged out successfully");
+                navigateTo("/login");
+            } catch (error) {
+                throw new Error(error);
+            }
+        },
+    });
 
     return (
         <div className="md:flex-[2_2_0] w-18 max-w-52">
@@ -79,7 +102,13 @@ export default function SideBar() {
                                     @{data?.username}
                                 </p>
                             </div>
-                            <BiLogOut className="w-5 h-5 cursor-pointer" />
+                            <BiLogOut
+                                className="w-7 h-7 cursor-pointer hover:text-blue-400"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    logoutMutation();
+                                }}
+                            />
                         </div>
                     </Link>
                 )}

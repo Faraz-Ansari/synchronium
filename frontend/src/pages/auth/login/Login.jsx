@@ -42,7 +42,7 @@ export default function Login() {
                 if (!response.ok) {
                     throw new Error(data.message || "Something went wrong!");
                 }
-                toast.success("Login successful");
+                toast.success("Logged in successfully");
                 navigateTo("/");
                 return data;
             } catch (error) {

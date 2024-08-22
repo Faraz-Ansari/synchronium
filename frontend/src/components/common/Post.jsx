@@ -9,8 +9,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 
+import { formatPostDate } from "../../utils/date";
+
 export default function Post({ post }) {
     const [comment, setComment] = useState("");
+
+    // Check if the post is created by the logged in user or not
+    // If it is created by the logged in user, then show the delete button
+    const isMyPost = authUser._id === post.user._id;
+
+    const postOwner = post.user;
+    const isLiked = post.likes.includes(authUser._id);
+
+    const formattedDate = formatPostDate(post.createdAt);
 
     // Get the logged in user from the query
     const { data: authUser } = useQuery({ queryKey: ["authUser"] });
@@ -71,15 +82,33 @@ export default function Post({ post }) {
         },
     });
 
-    // Check if the post is created by the logged in user or not
-    // If it is created by the logged in user, then show the delete button
-    const isMyPost = authUser._id === post.user._id;
+    const { mutate: commentPost, isPending: isCommenting } = useMutation({
+        mutationFn: async () => {
+            try {
+                const response = await fetch(`/api/post/comment/${post._id}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ text: comment }),
+                });
 
-    const postOwner = post.user;
-    const isLiked = post.likes.includes(authUser._id);
-    const isCommenting = false;
+                const data = await response.json();
 
-    const formattedDate = "1h";
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+                toast.success("Comment posted successfully");
+                setComment("");
+                queryClient.invalidateQueries({ queryKey: ["posts"] });
+                return data;
+            } catch (error) {
+                toast.error("Failed to post the comment");
+                console.error(error.message);
+                throw new Error(error);
+            }
+        },
+    });
 
     const handlePostDelete = () => {
         deletePost();
@@ -87,6 +116,8 @@ export default function Post({ post }) {
 
     const handlePostComment = (e) => {
         e.preventDefault();
+        if (isCommenting) return;
+        commentPost();
     };
 
     const handlePostLike = () => {

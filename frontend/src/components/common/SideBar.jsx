@@ -25,6 +25,7 @@ export default function SideBar() {
                 toast.success("Logged out successfully");
                 queryClient.invalidateQueries({ queryKey: ["authUser"] });
             } catch (error) {
+                console.error(error.message);
                 throw new Error(error);
             }
         },

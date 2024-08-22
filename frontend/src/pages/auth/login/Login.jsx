@@ -37,7 +37,6 @@ export default function Login() {
                 });
 
                 const data = await response.json();
-                console.log(data);
                 if (!response.ok) {
                     throw new Error(data.message || "Something went wrong!");
                 }
@@ -49,6 +48,7 @@ export default function Login() {
 
                 return data;
             } catch (error) {
+                console.error(error.message);
                 throw error;
             }
         },

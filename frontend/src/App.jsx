@@ -40,6 +40,7 @@ export default function App() {
 
                 return data;
             } catch (error) {
+                console.error(error.message);
                 throw new Error(error);
             }
         },

@@ -88,7 +88,14 @@ export const toggleLike = async (req, res) => {
             await User.findByIdAndUpdate(userId, {
                 $pull: { likedPosts: postId },
             });
-            res.status(200).json({ message: "Post unliked successfully" });
+
+            const updatedLikes = post.likes.filter(
+                (id) => id.toString() !== userId.toString()
+            );
+            res.status(200).json({
+                updatedLikes,
+                message: "Post unliked successfully",
+            });
         } else {
             // Like the post by adding the user's ID to the post's likes array
             await Post.findByIdAndUpdate(postId, { $push: { likes: userId } });
@@ -103,7 +110,11 @@ export const toggleLike = async (req, res) => {
                 type: "like",
             });
 
-            res.status(200).json({ message: "Post liked successfully" });
+            const updatedLikes = post.likes;
+            res.status(200).json({
+                updatedLikes,
+                message: "Post liked successfully",
+            });
         }
     } catch (error) {
         console.error(error.message);

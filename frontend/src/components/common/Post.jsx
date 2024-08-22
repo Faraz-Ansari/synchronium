@@ -17,7 +17,7 @@ export default function Post({ post }) {
 
     const queryClient = useQueryClient();
 
-    const { mutate: deletePost, isPending } = useMutation({
+    const { mutate: deletePost, isPending: isDeleting } = useMutation({
         mutationFn: async () => {
             try {
                 const response = await fetch(
@@ -35,26 +35,53 @@ export default function Post({ post }) {
 
                 toast.success("Post deleted successfully");
                 queryClient.invalidateQueries({ queryKey: ["posts"] });
-                
+
                 return data;
             } catch (error) {
-                console.error(error.message)
+                console.error(error.message);
                 throw new Error(error);
             }
         },
     });
-    const postOwner = post.user;
-    const isLiked = false;
+
+    const { mutate: likePost, isPending: isLiking } = useMutation({
+        mutationFn: async () => {
+            try {
+                const response = await fetch(
+                    `api/post/toggle-like/${post._id}`,
+                    {
+                        method: "POST",
+                    }
+                );
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                toast.success(data.message);
+
+                queryClient.invalidateQueries({ queryKey: ["posts"] });
+                return data;
+            } catch (error) {
+                toast.error("Failed to like the post");
+                console.error(error.message);
+                throw error;
+            }
+        },
+    });
 
     // Check if the post is created by the logged in user or not
     // If it is created by the logged in user, then show the delete button
     const isMyPost = authUser._id === post.user._id;
 
-    const formattedDate = "1h";
-
+    const postOwner = post.user;
+    const isLiked = post.likes.includes(authUser._id);
     const isCommenting = false;
 
-    const handleDeletePost = () => {
+    const formattedDate = "1h";
+
+    const handlePostDelete = () => {
         deletePost();
     };
 
@@ -62,7 +89,10 @@ export default function Post({ post }) {
         e.preventDefault();
     };
 
-    const handleLikePost = () => {};
+    const handlePostLike = () => {
+        if (isLiking) return;
+        likePost();
+    };
 
     return (
         <>
@@ -97,13 +127,13 @@ export default function Post({ post }) {
                         </span>
                         {isMyPost && (
                             <span className="flex justify-end flex-1">
-                                {!isPending && (
+                                {!isDeleting && (
                                     <FaTrash
                                         className="cursor-pointer hover:text-red-500"
-                                        onClick={handleDeletePost}
+                                        onClick={handlePostDelete}
                                     />
                                 )}
-                                {isPending && <LoadingSpinner size="sm" />}
+                                {isDeleting && <LoadingSpinner size="sm" />}
                             </span>
                         )}
                     </div>
@@ -203,7 +233,7 @@ export default function Post({ post }) {
                                         />
                                         <button className="btn btn-primary rounded-full btn-sm text-white px-4">
                                             {isCommenting ? (
-                                                <span className="loading loading-spinner loading-md"></span>
+                                                <LoadingSpinner size="md" />
                                             ) : (
                                                 "Post"
                                             )}
@@ -227,22 +257,28 @@ export default function Post({ post }) {
                             </div>
                             <div
                                 className="flex gap-1 items-center group cursor-pointer"
-                                onClick={handleLikePost}
+                                onClick={handlePostLike}
                             >
-                                {!isLiked && (
-                                    <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
-                                )}
-                                {isLiked && (
-                                    <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500 " />
+                                {isLiking && <LoadingSpinner size="sm" />}
+
+                                {!isLiked && !isLiking && (
+                                    <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-red-700" />
                                 )}
 
-                                <span
-                                    className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-                                        isLiked ? "text-pink-500" : ""
-                                    }`}
-                                >
-                                    {post.likes.length}
-                                </span>
+                                {isLiked && !isLiking && (
+                                    <FaRegHeart className="w-4 h-4 cursor-pointer text-red-700 " />
+                                )}
+                                {!isLiking && (
+                                    <span
+                                        className={`text-sm  group-hover:text-red-700 ${
+                                            isLiked
+                                                ? "text-red-500"
+                                                : "text-slate-500"
+                                        }`}
+                                    >
+                                        {post.likes.length}
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="flex w-1/3 justify-end gap-2 items-center">

@@ -31,7 +31,7 @@ const app = express();
 const PORT = 3000;
 
 // middleware for parsing json and urlencoded data from the request body
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // middleware for parsing cookies

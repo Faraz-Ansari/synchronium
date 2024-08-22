@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 import { useQuery } from "@tanstack/react-query";
+import useFollow from "../../hooks/useFollow";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function RightPanel() {
-    const { data: suggestedUsers, isPending } = useQuery({
+    const { data: suggestedUsers, isLoading } = useQuery({
         queryKey: ["suggestedUsers"],
         queryFn: async () => {
             try {
@@ -26,13 +28,15 @@ export default function RightPanel() {
         return <div className="md:w-64 w-0"></div>;
     }
 
+    const { toggleFollow, isPending } = useFollow();
+
     return (
         <div className="hidden lg:block my-4 mx-2">
             <div className="bg-[#16181C] p-4 rounded-md sticky top-2">
                 <p className="font-bold">Who to follow</p>
                 <div className="flex flex-col gap-4">
                     {/* item */}
-                    {isPending && (
+                    {isLoading && (
                         <>
                             <RightPanelSkeleton />
                             <RightPanelSkeleton />
@@ -40,7 +44,7 @@ export default function RightPanel() {
                             <RightPanelSkeleton />
                         </>
                     )}
-                    {!isPending &&
+                    {!isLoading &&
                         suggestedUsers?.map((user) => (
                             <Link
                                 to={`/profile/${user.username}`}
@@ -70,9 +74,16 @@ export default function RightPanel() {
                                 <div>
                                     <button
                                         className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
-                                        onClick={(e) => e.preventDefault()}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            toggleFollow(user._id);
+                                        }}
                                     >
-                                        Follow
+                                        {isPending ? (
+                                            <LoadingSpinner size="sm" />
+                                        ) : (
+                                            "Follow"
+                                        )}
                                     </button>
                                 </div>
                             </Link>

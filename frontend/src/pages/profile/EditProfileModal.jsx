@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { toast } from "react-hot-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import useUpdateProfile from "../../hooks/useUpdateProfile";
 
-export default function EditProfileModal({authUser}) {
+export default function EditProfileModal({ authUser }) {
     const [formData, setFormData] = useState({
         fullName: "",
         username: "",
@@ -14,38 +13,7 @@ export default function EditProfileModal({authUser}) {
         currentPassword: "",
     });
 
-    const queryClient = useQueryClient();
-
-    const { mutate: updateProfile, isPending: isUpdatePending } = useMutation({
-        mutationFn: async () => {
-            try {
-                const response = await fetch("/api/user/update", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formData),
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message);
-                }
-
-                toast.success("Profile updated successfully");
-                Promise.all([
-                    queryClient.invalidateQueries(["authUser"]),
-                    queryClient.invalidateQueries(["userProfile"]),
-                ]);
-                return data;
-            } catch (error) {
-                console.error(error.message);
-                toast.error(error.message);
-                throw new Error(error);
-            }
-        },
-    });
+    const { updateProfile, isUpdatePending } = useUpdateProfile();
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -82,7 +50,7 @@ export default function EditProfileModal({authUser}) {
                         className="flex flex-col gap-4"
                         onSubmit={(e) => {
                             e.preventDefault();
-                            updateProfile();
+                            updateProfile(formData);
                         }}
                     >
                         <div className="flex flex-wrap gap-2">

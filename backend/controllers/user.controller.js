@@ -149,7 +149,8 @@ export const updateUserProfile = async (req, res) => {
             (!currentPassword && newPassword)
         ) {
             return res.status(400).json({
-                error: "Please provide both current password and new password",
+                message:
+                    "Please provide both current password and new password",
             });
         }
 
@@ -161,12 +162,12 @@ export const updateUserProfile = async (req, res) => {
             if (!isMatch) {
                 return res
                     .status(400)
-                    .json({ error: "Current password is incorrect" });
+                    .json({ message: "Current password is incorrect" });
             }
 
             if (newPassword.length < 6) {
                 return res.status(400).json({
-                    error: "Password must be at least 6 characters long",
+                    message: "Password must be at least 6 characters long",
                 });
             }
 

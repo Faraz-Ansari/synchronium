@@ -14,12 +14,7 @@ import { formatPostDate } from "../../utils/date";
 export default function Post({ post }) {
     const [comment, setComment] = useState("");
 
-    // Check if the post is created by the logged in user or not
-    // If it is created by the logged in user, then show the delete button
-    const isMyPost = authUser._id === post.user._id;
-
     const postOwner = post.user;
-    const isLiked = post.likes.includes(authUser._id);
 
     const formattedDate = formatPostDate(post.createdAt);
 
@@ -27,6 +22,12 @@ export default function Post({ post }) {
     const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
     const queryClient = useQueryClient();
+
+    // Check if the post is created by the logged in user or not
+    // If it is created by the logged in user, then show the delete button
+    const isMyPost = authUser?._id === post.user._id;
+
+    const isLiked = post.likes.includes(authUser._id);
 
     const { mutate: deletePost, isPending: isDeleting } = useMutation({
         mutationFn: async () => {

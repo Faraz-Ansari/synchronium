@@ -5,16 +5,23 @@ import { useEffect } from "react";
 
 // FeedType is a prop that will be passed to Posts component to determine which posts to show
 // FeedType can either be "for you" or "following"
-export default function Posts({ feedType }) {
-    const getPostsEndpoint = () => {
-        if (feedType === "forYou") {
-            return "/api/post/posts";
-        } else {
-            return "/api/post/following-feed";
+export default function Posts({ feedType, username, userId }) {
+    const getPostEndpoint = () => {
+        switch (feedType) {
+            case "forYou":
+                return "/api/post/posts";
+            case "following":
+                return "/api/post/following-feed";
+            case "posts":
+                return `/api/post/user-posts/${username}`;
+            case "likes":
+                return `/api/post/liked-posts/${userId}`;
+            default:
+                return "/api/post/posts";
         }
     };
 
-    const POST_ENDPOINT = getPostsEndpoint();
+    const POST_ENDPOINT = getPostEndpoint();
 
     const {
         data: posts,
@@ -41,7 +48,7 @@ export default function Posts({ feedType }) {
 
     useEffect(() => {
         refetch();
-    }, [feedType, refetch]);
+    }, [feedType, username, userId, refetch]);
 
     return (
         <>
@@ -57,6 +64,7 @@ export default function Posts({ feedType }) {
                     No posts in this tab. Switch 👻
                 </p>
             )}
+
             {!isLoading && !isRefetching && posts && (
                 <div>
                     {posts.map((post) => (

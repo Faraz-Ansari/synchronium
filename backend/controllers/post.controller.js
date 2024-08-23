@@ -209,9 +209,6 @@ export const fetchLikedPosts = async (req, res) => {
                 path: "comments.user",
                 select: "-password",
             });
-        if (likedPosts.length === 0) {
-            return res.status(200).json({ message: "No liked posts found" });
-        }
 
         res.status(200).json(likedPosts);
     } catch (error) {

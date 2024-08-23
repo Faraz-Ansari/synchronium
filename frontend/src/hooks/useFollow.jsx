@@ -15,10 +15,11 @@ export default function useFollow() {
                 );
 
                 const data = await response.json();
+
                 if (!response.ok) {
                     throw new Error(data.message);
                 }
-                toast.success(`followed successfully`);
+                toast.success(data.message);
                 await Promise.all([
                     queryClient.invalidateQueries({
                         queryKey: ["suggestedUsers"],

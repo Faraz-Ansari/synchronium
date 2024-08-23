@@ -142,28 +142,36 @@ export const updateUserProfile = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        if (!currentPassword && !newPassword) {
+        // if user wants to update password then both current and new password should be provided
+        // otherwise don't provide any of them at all
+        if (
+            (!newPassword && currentPassword) ||
+            (!currentPassword && newPassword)
+        ) {
             return res.status(400).json({
-                message: "Please provide both current and new password",
+                error: "Please provide both current password and new password",
             });
         }
 
-        const isPasswordMatch = await bcryptjs.compare(
-            currentPassword,
-            currentUser.password
-        );
-        if (!isPasswordMatch) {
-            return res
-                .status(400)
-                .json({ message: "Current password is incorrect" });
-        }
-        if (newPassword.length < 6) {
-            return res
-                .status(400)
-                .json({ message: "Password must be at least 6 characters" });
-        }
+        if (currentPassword && newPassword) {
+            const isMatch = await bcryptjs.compare(
+                currentPassword,
+                currentUser.password
+            );
+            if (!isMatch) {
+                return res
+                    .status(400)
+                    .json({ error: "Current password is incorrect" });
+            }
 
-        currentUser.password = await bcryptjs.hash(newPassword, 10);
+            if (newPassword.length < 6) {
+                return res.status(400).json({
+                    error: "Password must be at least 6 characters long",
+                });
+            }
+
+            currentUser.password = await bcryptjs.hash(newPassword, 10);
+        }
 
         if (profileImg) {
             if (currentUser.profileImg) {

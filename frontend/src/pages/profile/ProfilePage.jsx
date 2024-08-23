@@ -1,29 +1,34 @@
 import { useRef, useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-
-import Posts from "../../components/common/Posts";
-import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
-import EditProfileModal from "./EditProfileModal";
-
-import { POSTS } from "../../utils/db/dummy";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+
+import Posts from "../../components/common/Posts";
+import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
+import EditProfileModal from "./EditProfileModal";
 import { formatMemberSinceDate } from "../../utils/date";
+import useFollow from "../../hooks/useFollow";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { toast } from "react-hot-toast";
 
 export default function ProfilePage() {
     const [coverImg, setCoverImg] = useState(null);
     const [profileImg, setProfileImg] = useState(null);
     const [feedType, setFeedType] = useState("posts");
+    const [postCount, setPostCount] = useState(0);
 
     const coverImgRef = useRef(null);
     const profileImgRef = useRef(null);
 
-    const { data: authUser } = useQuery({ queryKey: ["authUser"] });
     const { username } = useParams();
+    const { toggleFollow, isPending } = useFollow();
+    const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+
+    const queryClient = useQueryClient();
 
     const isMyProfile = authUser?.username === username;
 
@@ -41,9 +46,60 @@ export default function ProfilePage() {
                 if (!res.ok) {
                     throw new Error(data.error || "Something went wrong");
                 }
+                getPostCount();
 
                 return data;
             } catch (error) {
+                throw new Error(error);
+            }
+        },
+    });
+
+    const amIFollowing = authUser?.following.includes(user?._id);
+
+    const getPostCount = async () => {
+        try {
+            const res = await fetch(`/api/post/user-posts/${username}`);
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error);
+            }
+
+            setPostCount(data.length);
+        } catch (error) {
+            throw new Error(error);
+        }
+    };
+
+    const { mutate: updateProfile, isPending: isUpdatePending } = useMutation({
+        mutationFn: async () => {
+            try {
+                const response = await fetch("/api/user/update", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        coverImg,
+                        profileImg,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                toast.success("Profile updated successfully");
+                Promise.all([
+                    queryClient.invalidateQueries(["authUser"]),
+                    queryClient.invalidateQueries(["userProfile"]),
+                ]);
+                return data;
+            } catch (error) {
+                console.error(error.message);
+                toast.error(error.message);
                 throw new Error(error);
             }
         },
@@ -87,7 +143,7 @@ export default function ProfilePage() {
                                         {user?.fullName}
                                     </p>
                                     <span className="text-sm text-slate-500">
-                                        {POSTS?.length} posts
+                                        {postCount} posts
                                     </span>
                                 </div>
                             </div>
@@ -155,27 +211,35 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                             <div className="flex justify-end px-4 mt-5">
-                                {isMyProfile && <EditProfileModal />}
+                                {isMyProfile && (
+                                    <EditProfileModal authUser={authUser} />
+                                )}
                                 {!isMyProfile && (
                                     <button
                                         className="btn btn-outline rounded-full btn-sm"
-                                        onClick={() =>
-                                            alert("Followed successfully")
-                                        }
+                                        onClick={() => toggleFollow(user?._id)}
                                     >
-                                        Follow
+                                        {isPending && (
+                                            <LoadingSpinner size="sm" />
+                                        )}
+                                        {!isPending &&
+                                            amIFollowing &&
+                                            "Unfollow"}
+                                        {!isPending &&
+                                            !amIFollowing &&
+                                            "Follow"}
                                     </button>
                                 )}
-                                {(coverImg || profileImg) && (
+                                {(coverImg || profileImg) && isMyProfile && (
                                     <button
                                         className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                                        onClick={() =>
-                                            alert(
-                                                "Profile updated successfully"
-                                            )
-                                        }
+                                        onClick={() => updateProfile()}
                                     >
-                                        Update
+                                        {isUpdatePending ? (
+                                            <LoadingSpinner size="sm" />
+                                        ) : (
+                                            "Update"
+                                        )}
                                     </button>
                                 )}
                             </div>

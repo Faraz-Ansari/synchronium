@@ -4,33 +4,52 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 export default function NotificationPage() {
-    const isLoading = false;
-    const notifications = [
-        {
-            _id: "1",
-            from: {
-                _id: "1",
-                username: "johndoe",
-                profileImg: "/avatars/boy2.png",
-            },
-            type: "follow",
-        },
-        {
-            _id: "2",
-            from: {
-                _id: "2",
-                username: "janedoe",
-                profileImg: "/avatars/girl1.png",
-            },
-            type: "like",
-        },
-    ];
+    const queryClient = useQueryClient();
 
-    const deleteNotifications = () => {
-        alert("All notifications deleted");
-    };
+    const { data: notifications, isLoading } = useQuery({
+        queryKey: ["notifications"],
+        queryFn: async () => {
+            try {
+                const response = await fetch("/api/notification");
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                return data;
+            } catch (error) {
+                console.error(error.message);
+                throw error;
+            }
+        },
+    });
+
+    const { mutate: deleteNotifications } = useMutation({
+        mutationFn: async () => {
+            try {
+                const response = await fetch("/api/notification", {
+                    method: "DELETE",
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                toast.success(data.message);
+                queryClient.invalidateQueries({ queryKey: ["notifications"] });
+                return data;
+            } catch (error) {
+                console.error(error.message);
+                throw error;
+            }
+        },
+    });
 
     return (
         <>

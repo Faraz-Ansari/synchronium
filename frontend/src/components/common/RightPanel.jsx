@@ -24,28 +24,33 @@ export default function RightPanel() {
         },
     });
 
-    if (suggestedUsers?.length == 0) {
-        return <div className="md:w-64 w-0"></div>;
-    }
-
     const { toggleFollow, isPending } = useFollow();
+
+    if (isLoading) {
+        return (
+            <div className="hidden lg:block my-4 mx-2">
+                <div className="bg-[#16181C] p-4 rounded-md sticky top-2">
+                    <p className="font-bold">Who to follow</p>
+                    <div className="flex flex-col gap-4">
+                        <RightPanelSkeleton />
+                        <RightPanelSkeleton />
+                        <RightPanelSkeleton />
+                        <RightPanelSkeleton />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="hidden lg:block my-4 mx-2">
             <div className="bg-[#16181C] p-4 rounded-md sticky top-2">
                 <p className="font-bold">Who to follow</p>
                 <div className="flex flex-col gap-4">
-                    {/* item */}
-                    {isLoading && (
-                        <>
-                            <RightPanelSkeleton />
-                            <RightPanelSkeleton />
-                            <RightPanelSkeleton />
-                            <RightPanelSkeleton />
-                        </>
-                    )}
-                    {!isLoading &&
-                        suggestedUsers?.map((user) => (
+                    {suggestedUsers?.length === 0 ? (
+                        <div>No suggested users</div>
+                    ) : (
+                        suggestedUsers.map((user) => (
                             <Link
                                 to={`/profile/${user.username}`}
                                 className="flex items-center justify-between gap-4"
@@ -87,7 +92,8 @@ export default function RightPanel() {
                                     </button>
                                 </div>
                             </Link>
-                        ))}
+                        ))
+                    )}
                 </div>
             </div>
         </div>

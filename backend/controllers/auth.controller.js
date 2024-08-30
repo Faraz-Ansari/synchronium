@@ -81,7 +81,7 @@ export const login = async (req, res) => {
             maxAge: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
             httpOnly: true,
             sameSite: "strict",
-            secure: process.env.NODE_ENV === "production",
+            secure: false,
         });
 
         const { password: userPassword, ...userWithoutPassword } = user._doc;

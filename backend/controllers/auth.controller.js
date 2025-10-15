@@ -18,11 +18,6 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "Email already exists" });
         }
 
-        if (password.length < 6) {
-            return res.status(400).json({
-                message: "Password must be at least 6 characters long",
-            });
-        }
 
         const passwordHash = await bcryptjs.hash(password, 10);
 

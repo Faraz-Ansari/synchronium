@@ -48,7 +48,8 @@ app.use("/api/notification", notificationRouter);
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
 // Serve the index.html from the React app
-app.get("*", (req, res) => {
+// This is catch all route (express 5 recommends not using asterisk or explicit regex wildcard must be used)
+app.get((req, res) => {
     res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
 
